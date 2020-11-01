@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Search</title>
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    .upperBar {
+      background-color: #dae3ed;
+      height: 10vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .search {
+      border-color: #0051cd;
+      border-radius: 7px;
+      border-style: solid;
+      border-width: 2px;
+      height: 25px;
+      width: 20vw;
+      background-color: #f4f7fb;
+    }
+
+    .resultsContainer {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .resultsTable {
+      text-align: left;
+      border: solid #0051cd 1px;
+      box-shadow: 1px 1px 1px #999;
+    }
+
+    .tableImg {
+      width: 50px;
+      height: 50px;
+      vertical-align: middle;
+      margin-right: 5px;
+    }
+
+    .tableText {
+      font-family: cursive;
+      color: #2f4d68;
+      font-size: 16px;
+      font-style: italic;
+    }
+
+    #notFound {
+      display: none;
+    }
+
+    p {
+      display: inline;
+    }
+
+    td {
+      cursor: pointer;
+      padding: 10px;
+    }
+  </style>
+
+  <script type="module">
+    const items = [
+      { id: 1, image: "https://images.folloze.com/image/upload/v1450949154/folloze-image-gallery/campaign/heroimage01.png", title: "Space Mobile The Final Frontier" },
+      { id: 2, image: "https://images.folloze.com/image/upload/v1450949153/folloze-image-gallery/campaign/heroimage13.png", title: "What if They Let You Run The Hubble Mobile" },
+      { id: 3, image: "https://images.folloze.com/image/upload/v1450949153/folloze-image-gallery/campaign/heroimage04.png", title: "Shooting Stars Mobile" },
+      { id: 4, image: "https://images.folloze.com/image/upload/v1450949149/folloze-image-gallery/campaign/heroimage11.png", title: "Make Money Online Through Advertising" },
+      { id: 5, image: "https://images.folloze.com/image/upload/v1450949143/folloze-image-gallery/campaign/heroimage08.png", title: "What Makes Flyers Unrivaled" },
+      { id: 6, image: "https://images.folloze.com/image/upload/v1450948643/folloze-image-gallery/campaign/heroimage05.png", title: "Adwords Keywork Research For Beginners" }
+    ]
+
+    const boards = [
+      { id: 1, image: "https://images.folloze.com/image/upload/v1458832608/folloze-image-gallery/customer/customer_03.png", title: "The Baiscs Of Buying A Telescope Mobile" },
+      { id: 2, image: "https://images.folloze.com/image/upload/v1450949395/folloze-image-gallery/customer/customer_02.png", title: "The Universe Through A Child Eyes Mobile" },
+      { id: 3, image: "https://images.folloze.com/image/upload/v1450949032/folloze-image-gallery/customer/customer_04.png", title: "Home Business Advertising Ideas Mobile" },
+      { id: 4, image: "https://images.folloze.com/image/upload/v1450949131/folloze-image-gallery/group/group_01.png", title: "Finally A Top Mobile Way You Can Google Adwords Pay Per Clicks" },
+      { id: 5, image: "https://images.folloze.com/image/upload/v1450949052/folloze-image-gallery/group/group_02.png", title: "Study 800 Numbers Still Popula With Advertisers Mobile" },
+      { id: 6, image: "https://images.folloze.com/image/upload/v1450948179/folloze-image-gallery/generic/generic_06.png", title: "Using Banner Stands To Increase Trade Show Traffic" }
+    ]
+
+
+    document.getElementById('searchBox').addEventListener('input', searchAll);
+
+    const resultsTable = document.getElementById('resultsTable');
+    resultsTable.style.display = "none"
+    const notFound = document.getElementById('notFound');
+
+    let results = {}
+
+    // Only for making it "async" 
+    const getItems = new Promise((resolve, reject) => {
+      resolve(items);
+      reject('error!')
+    })
+    const getBoards = new Promise((resolve, reject) => {
+      resolve(boards);
+      reject('error!')
+    })
+
+    function searchAll(evt) {
+      Promise.all([getItems, getBoards])
+        .then(([allItems, allBoards]) => {
+
+          if (evt.target.value != "") {
+            notFound.style.display = "none"
+            resultsTable.style.display = "inline"
+            let matchItems = allItems.filter(item => item.title.toLowerCase().includes(evt.target.value.toLowerCase()))
+            let matchBoards = allBoards.filter(board => board.title.toLowerCase().includes(evt.target.value.toLowerCase()))
+
+            if (matchItems.length == 0 && matchBoards.length == 0) {
+              notFound.style.display = "inline"
+              resultsTable.style.display = "none"
+            }
+
+            results = {
+              Item: matchItems,
+              Board: matchBoards
+            }
+
+          } else {
+            resultsTable.style.display = "none"
+            results = {};
+          }
+
+          createTable();
+        })
+        .catch(err => console.error(err));
+    }
+
+    function createTable() {
+      if (results == {}) {
+      } else {
+        let innerHTML = "<tbody>"
+        for (let [key, value] of Object.entries(results)) {
+          let countItems = 0;
+          if (value.length) innerHTML += `<th class="tableText">${key} (${value.length})</th>`
+          value.map(item => {
+            if (countItems % 2 == 0) { innerHTML += `<tr class="trContainer">` }
+            innerHTML += `<td onClick="console.log('${key} #${item.id} was clicked!')"><img src="${item.image}" class="tableImg"><p class="tableText">${item.title}</p></td>`
+            countItems++
+            if (countItems % 2 == 0) { innerHTML += `</tr>` }
+          })
+          if (countItems % 2 != 0) { innerHTML += `</tr>` }
+        }
+        innerHTML += "</tbody>"
+        resultsTable.innerHTML = innerHTML;
+      }
+    }
+  </script>
+</head>
+
+<body>
+  <div class="upperBar">
+    <input type="text" placeholder="Search" class="search" id="searchBox">
+  </div>
+  <div class="resultsContainer">
+    <table class="resultsTable" id="resultsTable">
+    </table>
+    <p class="tableText" id="notFound">Nothing Found</p>
+  </div>
+
+</body>
+
+</html>
